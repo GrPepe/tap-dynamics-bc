@@ -284,6 +284,22 @@ class DynamicsBCODataStream(dynamicsBcStream):
         state = self.get_context_state(context)
         return not state.get("replication_key_value")
     
+    def get_records(self, context: Optional[dict]):
+        # Shared BC tables (DataPerCompany = false) return identical rows for
+        # every company, so `odata_shared_tables` maps such a stream to the one
+        # company it is read from; all other companies are skipped.
+        shared_company = (self.config.get("odata_shared_tables") or {}).get(self.name)
+        if shared_company and context and shared_company not in (
+            context.get("company_id"),
+            context.get("company_name"),
+        ):
+            self.logger.info(
+                f"Skipping shared table '{self.name}' for company "
+                f"'{context.get('company_name')}': read only from '{shared_company}'."
+            )
+            return
+        yield from super().get_records(context)
+
     def post_process(self, row: dict, context: Optional[dict] = None) -> Optional[dict]:
         # Header records appear with empty values and should be skipped
         if all(value == '' for k, value in row.items() if k != '@odata.etag'):
