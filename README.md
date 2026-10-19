@@ -29,6 +29,7 @@ The tap authenticates with Dynamics 365 Business Central via Microsoft OAuth 2.0
 | `enable_odata_discovery` | No | When `true`, fetch the BC OData V4 `$metadata` document and append a stream per entity set to the discovered catalog. Defaults to `false` (catalog contains only the hand-written REST streams). See [Dynamic OData Discovery](#dynamic-odata-discovery). | `true` |
 | `odata_discovery_include_prefixes` | No | If set, only OData entity sets whose name starts with one of these prefixes are surfaced. Useful to scope the catalog to a specific extension. | `["AGBI"]` |
 | `odata_discovery_exclude_prefixes` | No | OData entity sets whose name starts with one of these prefixes are skipped. Empty by default — see the [recommended exclusions](#recommended-exclusions) below for a curated list of noisy built-in surfaces. | `["Power_BI_", "ExcelTemplate"]` |
+| `odata_shared_tables` | No | Map of OData entity-set name to the company (`id` or `name`) it is read from. Use for BC tables shared across companies (`DataPerCompany = false`), which otherwise return the same rows once per company. Discovered streams not listed here are still read from every company. | `{"STARJobList": "Example Company A"}` |
 
 ### Notes
 
@@ -62,6 +63,7 @@ By default, the tap exposes a fixed set of streams built on the Business Central
    - Streams whose name matches a hand-written stream are skipped (no duplicates / no shadowing of curated logic).
    - `odata_discovery_include_prefixes`, when set, restricts the result to matching names.
    - `odata_discovery_exclude_prefixes`, when set, removes streams whose name starts with one of those prefixes.
+5. Streams listed in `odata_shared_tables` are read only from the mapped company; every other company is skipped for them.
 
 ### Recommended exclusions
 

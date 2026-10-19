@@ -167,6 +167,17 @@ class TapdynamicsBc(Tap):
                 "'Accountant', 'workflow']."
             ),
         ),
+        th.Property(
+            "odata_shared_tables",
+            th.ObjectType(additional_properties=th.StringType),
+            required=False,
+            description=(
+                "Map of OData entity-set name to the company (id or name) it "
+                "is read from. For BC tables shared across companies, which "
+                "otherwise return the same rows once per company. E.g. "
+                "{'STARJobList': '<company id>'}."
+            ),
+        ),
     ).to_dict()
 
     # OData entity-set names already covered by the hand-written REST streams
